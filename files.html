@@ -1,0 +1,82 @@
+<script type='text/javascript'>
+    $(document).ready(function () {
+        $.ajax({
+            url: "http://localhost:8080/editor",
+            type: "GET",
+            contentType: "application/json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("access_token"));
+            },
+            success: function (datas) {
+                for (var i = 0; i < datas.length; i++) {
+                    $("#files-list").append("<div class='col-sm-6 col-md-4' id='div-" + datas[i]['id'] + "'> " +
+                            "<div class='thumbnail'> " +
+                            "<div class='caption'>" +
+                            "<h3>" + datas[i]['title'] + "</h3>" +
+                            " <p>" + datas[i]['text'] + "</p>" +
+                            " <p> " +
+                            "<a href='#' class='btn btn-default' role='button' id='" + datas[i]['id'] + "' >edit</a> " +
+                            "<a href='#' class='btn btn-danger' role='button' id='" + datas[i]['id'] + "' >Delete</a> " +
+                            "</p> </div> </div> </div>")
+
+                }
+                $(".btn.btn-default").click(function (event) {
+                    localStorage.setItem("editor_id", event.target.id);
+                    $("#content").load('editor.html');
+                });
+
+                $(".btn.btn-danger").click(function (event) {
+                    $.ajax({
+                        url: "http://localhost:8080/editor",
+                        type: "PUT",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            "id": event.target.id,
+                            "isDeleted": "true"
+                        }),
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("access_token"));
+                        },
+                        success: function (data) {
+                            $("#div-"+event.target.id).addClass("hidden");
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                        }
+                    });
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            }
+        });
+
+        $("#files-create").click(function () {
+            $.ajax({
+                url: "http://localhost:8080/editor",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({}),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("access_token"));
+                },
+                success: function (data) {
+                    localStorage.setItem("editor_id", data);
+                    $("#content").load('editor.html');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                }
+            });
+        });
+
+    });
+</script>
+<div class="row" id="files-list">
+    <div class="col-sm-6 col-md-2">
+        <p>
+            <a href="#" class="btn btn-primary btn-lg" role="button" id="files-create">
+                            <span class="glyphicon glyphicon-plus">
+                            </span> create a new file
+            </a>
+        </p>
+    </div>
+</div>
+

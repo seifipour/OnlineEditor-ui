@@ -1,0 +1,89 @@
+<script type='text/javascript'>
+    $(document).ready(function () {
+        $("#account-signup").click(function () {
+            $.ajax({
+                url: "http://localhost:8080/account",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    "name": $('#signup_name').val(),
+                    "username": $('#signup_email').val(),
+                    "password": $('#signup_password').val()
+                }),
+                success: function (data) {
+                    $("#signup-attemp").text("account created successfully").removeClass("hidden");
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#signup-attemp").text("username is already exist or is not valid").removeClass("hidden");
+                }
+            });
+        });
+        $("#account-signin").click(function () {
+            $.ajax({
+                url: "http://localhost:8080/oauth/token",
+                type: "POST",
+                data: {
+                    "username": $('#email_username').val(),
+                    "password": $('#password').val(),
+                    "grant_type": "password",
+                    "scope": "read"
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Basic Y2xpZW50YXBwOg==");
+                },
+                success: function (data) {
+                    localStorage.setItem("access_token", data["access_token"]);
+                    $("#content").load('files.html');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#signin-attemp").text("username or password is wrong").removeClass("hidden");
+                    $('#email_username').val('');
+                    $('#password').val('');
+                }
+            });
+        });
+    });
+</script>
+<div class="row">
+    <div class="col-md-6">
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Sign in
+            </div>
+            <div class="panel-footer">
+                <label class="alert alert-warning hidden" id="signin-attemp"></label>
+                <input type="text" class="form-control" placeholder="Email" id="email_username"
+                       style="margin: 5px;" required autofocus>
+                <input type="password" class="form-control" placeholder="Password" id="password"
+                       style="margin: 5px;" required>
+                <button class="btn btn-lg btn-primary btn-block" id="account-signin" style="margin: 5px;"> Sign
+                    in
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Sign up
+            </div>
+            <div class="panel-footer">
+                <label class="alert alert-warning hidden" id="signup-attemp"></label>
+                <input type="text" class="form-control" placeholder="Name" id="signup_name" style="margin: 5px;"
+                       required autofocus>
+                <input type="email" class="form-control" placeholder="Email" id="signup_email"
+                       style="margin: 5px;" required autofocus>
+                <input type="password" class="form-control" placeholder="Password" id="signup_password"
+                       style="margin: 5px;" required>
+                <input type="password" class="form-control" placeholder="Confirm Password"
+                       id="signup_confirm_password" style="margin: 5px;" required>
+                <button class="btn btn-lg btn-primary btn-block" id="account-signup" style="margin: 5px;"> Sign
+                    up
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+

@@ -1,0 +1,51 @@
+<script type='text/javascript'>
+    $(document).ready(function () {
+
+        $.ajax({
+            url: "http://localhost:8080/editor/id?id="+localStorage.getItem("editor_id"),
+            type: "GET",
+            contentType: "application/json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("access_token"));
+            },
+            success: function (data) {
+                console.log(data["title"]);
+                $("#editor_title").val(data["title"]);
+                $("#editor_text").val(data["text"]);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            }
+        });
+
+        $("#editor-create").click(function () {
+            $.ajax({
+                url: "http://localhost:8080/editor",
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    "id": localStorage.getItem("editor_id"),
+                    "title": $('#editor_title').val(),
+                    "text": $('#editor_text').val(),
+                    "isDeleted": "false"
+                }),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("access_token"));
+                },
+                success: function (data) {
+                    $("#editor_status").text("data saved successfully").removeClass("hidden");
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#editor_status").text("some error occurred").removeClass("hidden");
+                }
+            });
+        });
+        $("#editor-back").click(function () {
+            $("#content").load('files.html');
+        });
+    });
+</script>
+<label class="alert alert-info hidden" id="editor_status"></label>
+<input type="text" class="form-control" placeholder="untitled" id="editor_title" style="margin: 15px;">
+<textarea class="form-control" rows="20" style="margin: 15px;" id="editor_text"></textarea>
+<button class="btn btn-lg btn-default btn-block" style="margin: 15px;" id="editor-create"> save</button>
+<button class="btn btn-lg btn-danger btn-block" style="margin: 15px;" id="editor-back"> back</button>
